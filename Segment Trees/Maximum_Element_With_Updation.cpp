@@ -2,37 +2,38 @@
 
 #include<bits/stdc++.h>
 using namespace std;
+#define ll long long
 
-vector<int> seg;
+vector<ll> seg;
 
-void buildTree(int ind, int low, int high, vector<int>& v)
+void buildTree(ll ind, ll low, ll high, vector<ll>& v)
 {
     if(low == high)
     {
         seg[ind] = v[low];
         return;
     }
-    int mid = low + (high - low) / 2;
+    ll mid = low + (high - low) / 2;
     buildTree(2 * ind + 1, low, mid, v);
     buildTree(2 * ind + 2, mid + 1, high, v);
     seg[ind] = max(seg[2 * ind + 1], seg[2 * ind + 2]);
 }
 
-int findMax(int ind, int low, int high, int l, int r)
+ll findMax(ll ind, ll low, ll high, ll l, ll r)
 {
     if(low >= l && high <= r)
         return seg[ind];
         
     if(high < l || low > r)
-        return INT_MIN;
+        return LLONG_MIN;
         
-    int mid = low + (high - low) / 2;
-    int left = findMax(2 * ind + 1, low, mid, l, r);
-    int right = findMax(2 * ind + 2, mid + 1, high, l, r);
+    ll mid = low + (high - low) / 2;
+    ll left = findMax(2 * ind + 1, low, mid, l, r);
+    ll right = findMax(2 * ind + 2, mid + 1, high, l, r);
     return max(left, right);
 }
 
-void update(int ind, int low, int high, int index, int newVal)
+void update(ll ind, ll low, ll high, ll index, ll newVal)
 {
     if(low == high)
     {
@@ -40,7 +41,7 @@ void update(int ind, int low, int high, int index, int newVal)
         return;
     }
     
-    int mid = low + (high - low) / 2;
+    ll mid = low + (high - low) / 2;
     if(index >= low && index <= mid)
         update(2 * ind + 1, low, mid, index, newVal);
     else
@@ -51,18 +52,18 @@ void update(int ind, int low, int high, int index, int newVal)
 
 int main()
 {
-    int n; cin>>n;
-    vector<int> v(n);
-    for(int i = 0; i < n; i++)
+    ll n; cin>>n;
+    vector<ll> v(n);
+    for(ll i = 0; i < n; i++)
         cin>>v[i];
         
     seg.resize(4 * n + 1);
     buildTree(0, 0, n-1, v);
         
-    int q; cin>>q;
-    for(int i = 0; i < q; i++)
+    ll q; cin>>q;
+    for(ll i = 0; i < q; i++)
     {
-        int type, l, r; cin>>type>>l>>r;
+        ll type, l, r; cin>>type>>l>>r;
         if(!type)
         {
             update(0, 0, n-1, l, r);

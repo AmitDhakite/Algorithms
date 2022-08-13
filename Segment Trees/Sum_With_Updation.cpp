@@ -5,12 +5,21 @@ using namespace std;
 #define ll long long
 
 
-class NumArray {
+class SGTree {
 public:
     vector<ll> seg;
     vector<ll> v;
     ll n;
     
+    SGTree(vector<ll>& a) 
+    {
+        for(auto &it: a)
+            v.push_back(it);
+        n = v.size();
+        seg.resize(4 * n + 1);
+        buildTree(0, 0, n-1);
+    }
+
     void buildTree(ll ind, ll l, ll r)
     {        
         if(l == r)
@@ -25,16 +34,7 @@ public:
         
         seg[ind] = seg[2 * ind + 1] + seg[2 * ind + 2];
     }
-    
-    NumArray(vector<ll>& a) 
-    {
-        for(auto &it: a)
-            v.push_back(it);
-        n = v.size();
-        seg.resize(4 * n + 1);
-        buildTree(0, 0, n-1);
-    }
-    
+        
     void set(ll ind, ll index, ll l, ll r, ll dif)
     {
         if(l == r)
@@ -78,3 +78,12 @@ public:
         return query(0, 0, n-1, left, right);
     }
 };
+
+int main()
+{
+    vector<ll> v = {1,2,3,4,5};
+    SGTree obj1(v);    
+    cout<<obj1.sumRange(0, 2)<<endl;
+    obj1.update(1, 10);
+    cout<<obj1.sumRange(0, 2)<<endl;
+}

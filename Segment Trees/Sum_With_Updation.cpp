@@ -1,89 +1,115 @@
 // Problem Link: https://leetcode.com/problems/range-sum-query-mutable/
+// CSES: https://cses.fi/problemset/task/1648/
 
 #include<bits/stdc++.h>
 using namespace std;
 #define ll long long
-
-
+#define pb push_back
+#define mp make_pair
+#define pl pair<ll, ll>
+#define vb vector<bool>
+#define vl vector<ll>
+#define vvl vector<vector<ll>>
+#define vpl vector<pair<ll, ll>>
+#define gpl greater<pair<ll, ll>>
+#define in(v,n) for(ll i = 0; i < n; i++) cin>>v[i]
+#define out(v) for(ll i = 0; i < v.size(); i++) {char c = ' '; cout<<v[i]<<c; if(i==n-1) cout<<endl;}
+#define mid(l,r) l+(r-l)/2
+#define fo(i,n) for(ll i = 0; i < n; i++)
+#define all(x) (x).begin(),(x).end()
+#define MOD 1000000007 
+#define INF 1000000000000000000
+ 
 class SGTree {
-public:
-    vector<ll> seg;
-    vector<ll> v;
-    ll n;
-    
-    SGTree(vector<ll>& a) 
+    vl seg;
+  public:    
+    SGTree(vl& v)
     {
-        for(auto &it: a)
-            v.push_back(it);
-        n = v.size();
-        seg.resize(4 * n + 1);
-        buildTree(0, 0, n-1);
+        ll n = v.size();
+        seg.resize(4*n + 1);
+        buildTree(0, 0, n-1, v);
     }
-
-    void buildTree(ll ind, ll l, ll r)
-    {        
+    void show()
+    {
+        for(auto &it: seg)
+            cout<<it<<" ";
+        cout<<endl;
+    }
+    void buildTree(ll ind, ll l, ll r, vl& v)
+    {
         if(l == r)
         {
             seg[ind] = v[l];
             return;
         }
-        
         ll mid = l + (r - l) / 2;
-        buildTree(2 * ind + 1, l, mid);
-        buildTree(2 * ind + 2, mid + 1, r);
-        
+        buildTree(2 * ind + 1, l, mid, v);
+        buildTree(2 * ind + 2, mid + 1, r, v);
         seg[ind] = seg[2 * ind + 1] + seg[2 * ind + 2];
     }
-        
-    void set(ll ind, ll index, ll l, ll r, ll dif)
+    ll getSum(ll ind, ll l, ll r, ll low, ll high)
     {
+        if(l >= low && r <= high)
+            return seg[ind];
+
+        if(r < low || l > high)
+            return 0;
+
+        ll mid = l + (r - l) / 2;
+        ll left = getSum(2 * ind + 1, l , mid, low, high);
+        ll right = getSum(2 * ind + 2, mid + 1 , r, low, high);
+        return left + right;
+    }
+    void updateSum(ll ind, ll l, ll r, ll i, ll dif)
+    {
+        if(i < l || i > r)
+            return;                
+
         if(l == r)
         {
             seg[ind] += dif;
             return;
         }
-        
+
+
         ll mid = l + (r - l) / 2;
-        if(index <= mid)
-            set(2 * ind + 1, index, l, mid, dif);
-        else
-            set(2 * ind + 2, index, mid + 1, r, dif);
+        updateSum(2 * ind + 1, l, mid, i, dif);
+        updateSum(2 * ind + 2, mid + 1, r, i, dif);
         seg[ind] += dif;
-    }
-    
-    void update(ll index, ll val) 
-    {
-        ll dif = - v[index] + val;
-        v[index] = val;
-        set(0, index, 0, n-1, dif);
-    }
-    
-    ll query(ll ind, ll low, ll high, ll l, ll r)
-    {
-        if(low >= l && high <= r)
-            return seg[ind];
-        
-        if(high < l || low > r)
-            return 0;
-        
-        ll mid = low + (high - low) / 2;
-        ll left = query(2 * ind + 1, low, mid, l, r);
-        ll right = query(2 * ind + 2, mid + 1, high, l, r);
-        
-        return left + right;
-    }
-    
-    ll sumRange(ll left, ll right) 
-    {
-        return query(0, 0, n-1, left, right);
     }
 };
 
+void solve()
+{
+    ll n, q; cin>>n>>q;
+    vl v(n); in(v,n);
+    SGTree obj(v);
+    while(q--)
+    {
+        ll type; cin>>type;
+        if(type == 1)
+        {
+            ll i, val;
+            cin>>i>>val;
+            ll dif = val - v[i-1];
+            v[i-1] = val;
+            obj.updateSum(0, 0, n-1, i-1, dif);
+        }
+        else
+        {
+            ll l, r; cin>>l>>r;
+            cout<<obj.getSum(0, 0, n-1, l-1, r-1)<<endl;
+        }
+    }
+}
+ 
 int main()
 {
-    vector<ll> v = {1,2,3,4,5};
-    SGTree obj1(v);    
-    cout<<obj1.sumRange(0, 2)<<endl;
-    obj1.update(1, 10);
-    cout<<obj1.sumRange(0, 2)<<endl;
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    ll t = 1; 
+    while(t--)
+        solve();
+    return 0;
 }
